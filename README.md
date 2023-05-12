@@ -1,0 +1,1 @@
+# TackPay ESLint config TS
