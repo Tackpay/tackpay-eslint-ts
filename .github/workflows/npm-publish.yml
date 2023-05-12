@@ -8,7 +8,7 @@ on:
     types: [created]
 
 jobs:
-  build:
+  publish:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout 🛎️
@@ -28,19 +28,32 @@ jobs:
       - name: Install 📦
         run: pnpm install
 
-      - name: Build 🛠
-        run: pnpm build
-
-  publish-npm:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 16
-          registry-url: https://registry.npmjs.org/
-      - run: npm ci
-      - run: npm publish
+      - name: Publish 🚀 PRERELEASE
+        if: github.event.release.prerelease
+        run: |
+          npm config set //registry.npmjs.org/:_authToken=$NODE_AUTH_TOKEN
+          pnpm -r publish --tag next --no-git-checks --access public
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
+
+      - name: Publish 🚀 PRODUCTION
+        if: !github.event.release.prerelease
+        run: |
+          npm config set //registry.npmjs.org/:_authToken=$NODE_AUTH_TOKEN
+          pnpm -r publish --no-git-checks --access public
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.npm_token}}
+
+  # publish-npm:
+  #   needs: build
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - uses: actions/setup-node@v3
+  #       with:
+  #         node-version: 16
+  #         registry-url: https://registry.npmjs.org/
+  #     - run: npm ci
+  #     - run: npm publish
+  #       env:
+  #         NODE_AUTH_TOKEN: ${{secrets.npm_token}}
