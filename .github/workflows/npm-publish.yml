@@ -29,7 +29,7 @@ jobs:
         run: pnpm install
 
       - name: Publish 🚀 PRERELEASE
-        if: github.event.release.prerelease
+        if: 'github.event.release.prerelease'
         run: |
           npm config set //registry.npmjs.org/:_authToken=$NODE_AUTH_TOKEN
           pnpm -r publish --tag next --no-git-checks --access public
@@ -37,7 +37,7 @@ jobs:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
 
       - name: Publish 🚀 PRODUCTION
-        if: !github.event.release.prerelease
+        if: '!github.event.release.prerelease'
         run: |
           npm config set //registry.npmjs.org/:_authToken=$NODE_AUTH_TOKEN
           pnpm -r publish --no-git-checks --access public
